@@ -18,7 +18,7 @@ https://arxiv.org/abs/1905.00961
 MIT license
 
 ## Repository Structure
-
+```
 EloSRM/
 ├── README.md
 ├── LICENSE
@@ -34,6 +34,7 @@ EloSRM/
 │   └── runner.out.txt          sample output
 └── data/
     └── community.topcoder.com  TC SRM data files
+```
 
 ## Implementation
 
