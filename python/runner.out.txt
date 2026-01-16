@@ -1,0 +1,13 @@
+Using data directory: data\community.topcoder.com
+Processing 1402 rounds...
+
+Rating changes computed: 817969
+Max rating: 4775.5543
+Max delta: 1384.8760
+Mean delta: 29.3095
+Stddev: 104.8555
+Error: 0.74488704549418
+
+Parse time: 5.837s
+Rating time: 8.995s
+Date:  Jan 15 2026 09:38:26

@@ -1,0 +1,15 @@
+Using data directory: data/community.topcoder.com
+Processing 1402 rounds...
+Rated rounds: 1362
+Unique players: 82174
+
+Rating changes computed: 817969
+Max rating: 4775.5543
+Max delta: 1384.8760
+Mean delta: 29.3095
+Stddev: 104.8555
+Error: 0.7448870454941799
+
+Parse time: 1.387s
+Rating time: 0.608s
+Built: Jan 15 2026 09:40:34
