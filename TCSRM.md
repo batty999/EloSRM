@@ -10,10 +10,11 @@ Historical data from TopCoder Single Round Matches (2001-2024):
 - **817,969** rating changes computed
 
 ## Data Files
-
+```
 data/community.topcoder.com/
 ├── tc_module=BasicData&c=dd_round_list (list of 1402 rounds)
 └── tc_module=BasicData&c=dd_round_results&rd=<round_id> (1396 files)
+```
 
 ## Data Format
 
