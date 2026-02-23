@@ -63,15 +63,3 @@ cd python
 pip install -r requirements.txt
 python runner.py ../data/community.topcoder.com
 ```
-
-## Citation
-
-If you use this in research, please cite:
-```
-@article{Batty:EloSRM:2026,
-  title={An Elo-based Rating System for TopCoder Single Round Matches},
-  author={Batty, Fred and Kamenetsky, Dmitry},
-  journal={arXiv preprint arXiv:1905.00961},
-  year={2026}
-}
-```
