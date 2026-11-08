@@ -19,13 +19,13 @@ using namespace std;
 namespace fs = std::filesystem;
 
 
-struct Row { 
-    int coder_id = 0; 
-    double final_score = 0; 
+struct Row {
+    int coder_id = 0;
+    double final_score = 0;
 };
 
-struct Round { 
-    int round_id = 0; 
+struct Round {
+    int round_id = 0;
     time_t date = 0;
     size_t num_rated = 0;
     vector<Row> divisions[2];
@@ -129,7 +129,7 @@ static bool read_file(const fs::path& p, string& c) {
 int main(int argc, char **argv) {
     using clk = chrono::high_resolution_clock;
     auto parse_t0 = clk::now();
- 
+
     // Allow optional argv[1] to override data directory
     string dataDir = argc > 1 ? argv[1] : "../data/community.topcoder.com";
     cout << "Using data directory: " << dataDir << "\n";
@@ -142,17 +142,17 @@ int main(int argc, char **argv) {
 
     string rlContent;
     if (!read_file(rlPath, rlContent)) {
-        cerr << "Couldn't open round list.\n"; 
+        cerr << "Couldn't open round list.\n";
         return 1;
     }
 
     parse_rounds(rlContent);
-    if (rounds.empty()) { 
-        cerr << "dd_round_list is empty.\n"; 
-        return 1; 
+    if (rounds.empty()) {
+        cerr << "dd_round_list is empty.\n";
+        return 1;
     }
-    stable_sort(rounds.begin(), rounds.end(), [](const auto &a, const auto &b) { 
-        return a.date < b.date; 
+    stable_sort(rounds.begin(), rounds.end(), [](const auto &a, const auto &b) {
+        return a.date < b.date;
     });
 
     // Phase 1: parse all result files
@@ -164,10 +164,10 @@ int main(int argc, char **argv) {
         snprintf(fname, sizeof(fname), "tc_module=BasicData&c=dd_round_results&rd=%d", ri.round_id);
         fs::path p = fs::path(dataDir) / string(fname);
         if (!fs::exists(p)) continue;
-    
+
         string content;
         if (!read_file(p, content)) continue;
-        
+
         parse_results(rounds[i], content);
     }
     auto parse_t1 = clk::now();
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
                 maxDelta = max(maxDelta, d);
                 sumDeltas += d;
                 sumDelta2 += d * d;
-                sumErrC += fabs(res.perf);
+                sumErrC += std::fabs(res.perf);
                 double t = sumErr + sumErrC;
                 sumErrC -= t - sumErr;
                 sumErr = t;
@@ -215,13 +215,13 @@ int main(int argc, char **argv) {
     }
     auto rate_t1 = clk::now();
 
-    if (!numDeltas) { 
-        cout << "No rating changes computed.\n"; 
-        return 0; 
+    if (!numDeltas) {
+        cout << "No rating changes computed.\n";
+        return 0;
     }
 
     double mean = sumDeltas / numDeltas;
-    double stddev = sqrt(sumDelta2 / numDeltas - mean * mean);
+    double stddev = std::sqrt(sumDelta2 / numDeltas - mean * mean);
 
     cout << "Rated rounds: " << numRounds << "\n";
     cout << "Unique players: " << players.size() << "\n";

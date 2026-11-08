@@ -79,14 +79,14 @@ namespace EloSRM
                     arank += si < sj;
                 }
             }
-            double perf = log(erank / arank) * M_LOG2E;
+            double perf = std::log(erank / arank) * M_LOG2E;
             double perf1 = var / mu;
 
-            double pa = perf * M / (M + abs(perf));
+            double pa = perf * M / (M + std::fabs(perf));
             pa += B2 * perf1;
-            double ef = sqrt(1. + pi->num_ratings * W1);
+            double ef = std::sqrt(1. + pi->num_ratings * W1);
             double cf = 1 + C * perf1;
-            double ff = pow(pi->recent_rounds, gamma);
+            double ff = std::pow(pi->recent_rounds, gamma);
             double w = ef * cf * ff;
             double delta_r = K * pa / w;
 
@@ -107,10 +107,10 @@ namespace EloSRM
             }
             else {
                 auto t_diff = round_time - pi->last_round;
-                double decay = exp(lambda * t_diff);
+                double decay = std::exp(lambda * t_diff);
                 pi->recent_rounds = 1 + pi->recent_rounds * decay;
             }
-            ri->rate = exp(pi->rating * EloScale);
+            ri->rate = std::exp(pi->rating * EloScale);
         }
         rateDivision(&results[0], n);
 

@@ -32,7 +32,7 @@ def parse_utc(date_str: str) -> float:
         dt = datetime.strptime(date_str, '%Y-%m-%d %H:%M')
         dt = dt.replace(tzinfo=timezone.utc) # No DST
         return dt.timestamp()
-    
+
     except ValueError:
         return 0.0
 
@@ -41,17 +41,17 @@ def extract_tag(xml_block: str, tag_name: str) -> str:
     """Extract content using string operations """
     start_tag = f'<{tag_name}>'
     end_tag = f'</{tag_name}>'
-    
+
     start_idx = xml_block.find(start_tag)
     if start_idx == -1:
         return ''
-    
+
     start_idx += len(start_tag)
     end_idx = xml_block.find(end_tag, start_idx)
-    
+
     if end_idx == -1:
         return ''
-    
+
     return xml_block[start_idx:end_idx]
 
 
@@ -100,7 +100,7 @@ def parse_results(content: str) -> List[List[Row]]:
     """Parse dd_round_results into division lists."""
     divisions = [[], []]
     seen_coders = set()
-    
+
     # Find all row blocks using string operations
     pos = 0
     while True:
@@ -108,7 +108,7 @@ def parse_results(content: str) -> List[List[Row]]:
         row_start = content.find('<row>', pos)
         if row_start == -1: break
         row_start += 5
-        
+
         # Find closing </row>
         row_end = content.find('</row>', row_start)
         if row_end == -1: break
@@ -126,16 +126,16 @@ def parse_results(content: str) -> List[List[Row]]:
         cid = extract_tag(block, 'coder_id')
         if not cid:
             continue
-        
+
         coder_id = int(cid)
         if coder_id in seen_coders: # skip dups
-            continue 
+            continue
         seen_coders.add(coder_id)
-    
+
         # score
         score_str = extract_tag(block, 'final_points')
         score = float(score_str) if score_str else 0.0
-    
+
         # division
         div_str = extract_tag(block, 'division')
         div = int(div_str) if div_str else 1
@@ -152,7 +152,7 @@ def parse_results(content: str) -> List[List[Row]]:
 def process_single_round(args):
     """Worker: load and parse a single dd_round_results file."""
     round_id, data_dir = args
-    
+
     path = data_dir / f"tc_module=BasicData&c=dd_round_results&rd={round_id}"
 
     try:
@@ -160,18 +160,18 @@ def process_single_round(args):
             content = f.read()
     except:
         return []
-    
+
     return parse_results(content) if content else []
 
 def parse_rounds_parallel(rounds: List[Round], data_dir: Path) -> None:
     """Parse all rounds in parallel and fill round.divisions."""
-    
+
     # Prepare arguments for each round
     args = ((r.round_id, data_dir) for r in rounds)
 
-    num_workers = min(cpu_count() // 2, len(rounds))
+    num_workers = max(1, min(cpu_count() // 2, len(rounds)))
     # print(f"Using {num_workers} worker processes")
-    
+
     with Pool(num_workers) as pool:
         results = pool.map(process_single_round, args)
 
@@ -195,7 +195,7 @@ def main():
     if not rl_path.exists():
         print("Round list file not found.")
         return 1
-    
+
     # Read and parse round list
     try:
         rl_content = rl_path.read_text(encoding="utf-8", errors="ignore")
@@ -217,11 +217,11 @@ def main():
 
     # Phase 2: rating pass
     players: Dict[int, EloSRM.Player] = {}
-    
+
     # Initialize rating system with first round date
     if rounds:
         EloSRM.init(rounds[0].date)
-    
+
     num_deltas = 0
     max_delta = 0.0
     sum_deltas = 0.0
@@ -229,7 +229,7 @@ def main():
     sum_err = 0.0
     sum_errc = 0.0
     max_rating = 0.0
-    
+
     rating_start = time.time()
 
     # Preallocated result objects
@@ -242,18 +242,18 @@ def main():
 
             # Setup results for this div
             n = len(rows)
-            
+
             # Expand pool if needed
             if n > RESULT_POOL_SIZE:
-                result_pool.extend([EloSRM.Result(None, 0.0) 
+                result_pool.extend([EloSRM.Result(None, 0.0)
                         for _ in range(n - RESULT_POOL_SIZE)])
                 RESULT_POOL_SIZE = n
-                  
+
             results = result_pool[:n]
             for i, row in enumerate(rows):
                 if row.coder_id not in players:
                     players[row.coder_id] = EloSRM.Player()
-                
+
                 result = results[i]
                 result.player = players[row.coder_id]
                 result.score = row.final_score
@@ -269,19 +269,19 @@ def main():
                 if delta > max_delta: max_delta = delta
                 sum_deltas += delta
                 sum_delta2 += delta * delta
-                sum_errc += abs(res.perf) 
+                sum_errc += abs(res.perf)
                 t = sum_err + sum_errc
                 sum_errc -= t - sum_err
                 sum_err = t
-            
+
             num_deltas += n
 
     rating_end = time.time()
-    
+
     if num_deltas == 0:
         print("No rating changes computed.")
         return 0
-    
+
     # Calculate statistics
     mean_delta = sum_deltas / num_deltas
     stddev_delta = math.sqrt(sum_delta2 / num_deltas - mean_delta ** 2)
@@ -293,10 +293,10 @@ def main():
     print(f"Mean delta: {mean_delta:.4f}")
     print(f"Stddev: {stddev_delta:.4f}")
     print(f"Error: {avg_error}")
-    
+
     parse_time = parse_end - parse_start
     rating_time = rating_end - rating_start
-    
+
     print(f"\nParse time: {parse_time:.3f}s")
     print(f"Rating time: {rating_time:.3f}s")
     now = datetime.now()
@@ -317,7 +317,7 @@ if __name__ == "__main__":
 
     exit_code = main()
 
-    if prof: 
+    if prof:
         profiler.disable()
         s = io.StringIO()
         ps = pstats.Stats(profiler, stream=s)
